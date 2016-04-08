@@ -1,0 +1,142 @@
+package meeting;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Room_divider {
+
+	public static void main(String[] args) throws IOException {
+		String[][] InputArray = new String[50][2];
+
+		readFile(InputArray);
+
+		/*
+		 * Assigns the meetings into 4 different arrays of Room 1 or 2 / AM or PM, 
+		 * while checking that the available time is enough 
+		 */
+		String[][] R1_AM_Array = new String[50][2];
+		String[][] R1_PM_Array = new String[50][2];
+		String[][] R2_AM_Array = new String[50][2];
+		String[][] R2_PM_Array = new String[50][2];
+		
+		int r1_AM_available =180; 
+		int r2_AM_available =180; 
+		int r1_PM_available =240; 
+		int r2_PM_available =240; 
+
+		int r1_AM_entries = 0; int r1_PM_entries = 0; int r2_AM_entries = 0; int r2_PM_entries = 0;
+
+		for (int i = 0; i < InputArray.length; i++) {
+			if (InputArray[i][1] != null){
+
+				int meeting_length = Integer.parseInt(InputArray[i][1]);
+
+				//checks if Room 1 is available for it in the morning 
+				if (meeting_length <= r1_AM_available) {
+					insertMeeting(InputArray, i, R1_AM_Array, r1_AM_available, r1_AM_entries); 
+					r1_AM_available -= meeting_length;
+					r1_AM_entries++;
+				}
+				
+				//else checks if Room 1 is available for it in the afternoon 
+				else if (meeting_length <= r1_PM_available) {
+					insertMeeting(InputArray, i, R1_PM_Array, r1_PM_available, r1_PM_entries); 
+					r1_PM_available -= meeting_length;
+					r1_PM_entries++;
+				}
+
+				//else checks if Room 2 is available for it in the morning 
+				else if (meeting_length <= r2_AM_available) {
+					insertMeeting(InputArray, i, R2_AM_Array, r2_AM_available, r2_AM_entries); 
+					r2_AM_available -= meeting_length;
+					r2_AM_entries++;
+				}
+				
+				//else checks if Room 2 is available for it in the afternoon 
+				else if (meeting_length <= r2_PM_available) {
+					insertMeeting(InputArray, i, R2_PM_Array, r2_PM_available, r2_PM_entries); 
+					r2_PM_available -= meeting_length;
+					r2_PM_entries++;
+				}				
+			}
+		}
+		//Print all
+		String s_AM = "AM";
+		String s_PM = "PM";
+		
+		System.out.println("Room 1:");
+		printRoom(R1_AM_Array, r1_AM_entries, s_AM);
+		System.out.println("12:00PM Lunch");
+		printRoom(R1_PM_Array, r1_PM_entries, s_PM);
+		System.out.println();
+		System.out.println("Room 2:");
+		printRoom(R2_AM_Array, r2_AM_entries, s_AM);
+		System.out.println("12:00PM Lunch");
+		printRoom(R2_PM_Array, r2_PM_entries, s_PM);
+	}
+
+
+	private static void readFile(String[][] inputArray) throws FileNotFoundException {
+		//reads and inserts each line into a two-dimensional String array, in 1st row all of it, in 2nd row the minutes
+		
+
+		FileReader in = new FileReader("C:/Temp/test.txt");
+		try (BufferedReader br = new BufferedReader(in)){
+			String line;
+			int lineArrayIndex = 0;
+
+			while ((line = br.readLine()) != null) {
+				if (line.length() >= 6 && line != null ) {
+					inputArray[lineArrayIndex][0] = line;
+					inputArray[lineArrayIndex][1] = line.substring(line.length() - 5, line.length() - 3); 
+				}
+				lineArrayIndex++;
+			}
+			for (int i = 0; i <= lineArrayIndex; i++) {
+			}
+		}
+		catch (IOException e) {
+			System.err.println("Caught IOException: " + e.getMessage());
+		}
+	}
+
+
+	
+	private static void insertMeeting(String[][] inputArray, int input_index, String[][] R_Array, int available_mins, int R_entries) {
+
+		if (inputArray[input_index][0].length() >= 6 && inputArray[input_index][0] != null ) {
+			R_Array[R_entries][0] = inputArray[input_index][0];
+			R_Array[R_entries][1] = inputArray[input_index][1];
+
+			R_entries++;
+			available_mins = available_mins - Integer.parseInt(inputArray[input_index][1]);
+		}
+	}
+	
+	private static void printRoom(String[][] R_Array, int r_entries, String am_pm){
+		int hh_am_pm;
+		if (am_pm == "AM"){
+			hh_am_pm = 9;
+		}
+		else {
+			hh_am_pm = 13;
+		}
+		int total_mins = 0;
+		for (int i = 0; i < R_Array.length; i++) {
+			if (R_Array[i][1] != null){
+				System.out.printf("%02d", hh_am_pm + total_mins/60);
+				System.out.print(":");
+				System.out.printf("%02d", total_mins%60);
+				System.out.println(am_pm + " " + R_Array[i][0]);
+				total_mins += Integer.parseInt(R_Array[i][1]);
+			}
+		}
+	}
+
+	
+	
+	
+}
